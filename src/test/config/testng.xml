@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite thread-count="1" verbose="1" name="BeanHotDeploy">
-	<test name=""BeanHotDeploy"" enabled="true" preserve-order="true">
+	<test name="BeanHotDeploy" enabled="true" preserve-order="true">
 		<groups>
 			<run>
 				<!--  <include name="infographicEngine" /> -->
