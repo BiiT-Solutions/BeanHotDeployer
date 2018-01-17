@@ -1,4 +1,4 @@
-package com.biit.hotdeploy.bean;
+package com.biit.bean.loader;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -16,7 +16,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import com.biit.hotdeploy.logger.BeanHotDeployLogger;
+import com.biit.bean.loader.logger.BeanLoaderLogger;
 
 @Resource
 public class BeanLoader {
@@ -65,10 +65,10 @@ public class BeanLoader {
 				String className = je.getName().substring(0, je.getName().length() - 6);
 				className = className.replace('/', '.');
 				if (className.startsWith(packetPrefixFilter)) {
-					BeanHotDeployLogger.debug(this.getClass().getName(), "Loading class '" + className + "'.");
+					BeanLoaderLogger.debug(this.getClass().getName(), "Loading class '" + className + "'.");
 					if (isClassNotLoaded(classLoader, className)) {
 						Class<?> classLoaded = classLoader.loadClass(className);
-						BeanHotDeployLogger.info(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
+						BeanLoaderLogger.info(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
 
 						// Add it as a bean.
 						if (!classLoaded.isInterface() && filter.getClass().isAssignableFrom(classLoaded)) {
@@ -77,11 +77,11 @@ public class BeanLoader {
 							if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
 								Object bean = classLoaded.getDeclaredConstructor().newInstance();
 								beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
-								BeanHotDeployLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
+								BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
 							}
 						}
 					} else {
-						BeanHotDeployLogger.debug(this.getClass().getName(), "Class '" + className + "' already loaded!");
+						BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + className + "' already loaded!");
 					}
 				}
 			}
@@ -109,7 +109,7 @@ public class BeanLoader {
 			} else {
 			}
 		} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
-			BeanHotDeployLogger.errorMessage(this.getClass().getName(), e);
+			BeanLoaderLogger.errorMessage(this.getClass().getName(), e);
 		}
 		return false;
 	}

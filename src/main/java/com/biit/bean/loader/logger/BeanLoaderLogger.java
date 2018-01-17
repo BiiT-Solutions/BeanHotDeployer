@@ -1,4 +1,4 @@
-package com.biit.hotdeploy.logger;
+package com.biit.bean.loader.logger;
 
 import org.apache.log4j.Logger;
 
@@ -7,9 +7,9 @@ import com.biit.logger.BiitLogger;
 /**
  * Defines basic log behavior. Uses log4j.properties.
  */
-public class BeanHotDeployLogger extends BiitLogger {
+public class BeanLoaderLogger extends BiitLogger {
 
-	private static Logger logger = Logger.getLogger(BeanHotDeployLogger.class);
+	private static Logger logger = Logger.getLogger(BeanLoaderLogger.class);
 
 	/**
 	 * Events that have business meaning (i.e. creating category, deleting form,
