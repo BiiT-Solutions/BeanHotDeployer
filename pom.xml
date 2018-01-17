@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.biit</groupId>
 	<artifactId>bean-hot-deployer</artifactId>
@@ -39,11 +40,19 @@
 		<log4j.version>1.2.17</log4j.version>
 		<maven-release-plugin.version>2.5.1</maven-release-plugin.version>
 		<maven-scm-provider-gitexe.version>1.9.2</maven-scm-provider-gitexe.version>
-		<!-- BiiT dependencies-->
+		<org.springframework.version>4.1.5.RELEASE</org.springframework.version>
+		<!-- BiiT dependencies -->
 		<biit-common-utils.version>[0.4,0.5)</biit-common-utils.version>
 	</properties>
 
 	<dependencies>
+		<!-- Spring -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.testng</groupId>
@@ -51,14 +60,14 @@
 			<version>${org.testng.version}</version>
 			<scope>test</scope>
 		</dependency>
-		
+
 		<!-- File access and logger -->
 		<dependency>
 			<groupId>com.biit</groupId>
 			<artifactId>common-utils</artifactId>
 			<version>${biit-common-utils.version}</version>
 		</dependency>
-		
+
 	</dependencies>
 
 	<build>
