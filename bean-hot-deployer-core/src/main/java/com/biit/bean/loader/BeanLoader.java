@@ -1,6 +1,7 @@
 package com.biit.bean.loader;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ClassUtils;
 
 import com.biit.bean.loader.configuration.BeanLoaderConfigurationReader;
 import com.biit.bean.loader.logger.BeanLoaderLogger;
@@ -51,8 +51,6 @@ public class BeanLoader implements IBeanLoader {
 				BeanLoaderLogger.warning(this.getClass().getName(), "Class not found '" + defaultBeanClass + "'.");
 			}
 		}
-		BeanLoaderLogger.info(this.getClass().getName(), "Beans loaded of type '" + defaultBeanClass + "' are '" + getLoadedBeansOfType(defaultBeanClass)
-				+ "'.");
 	}
 
 	private String getJarPath() {
@@ -60,23 +58,14 @@ public class BeanLoader implements IBeanLoader {
 	}
 
 	@Override
-	public Collection<?> getLoadedBeansOfType(String className) {
-		Class<?> beanFilter;
-		try {
-			beanFilter = Class.forName(className);
-			System.out.println("### " + beanFilter.getCanonicalName());
-			return getLoadedBeansOfType(beanFilter);
-		} catch (ClassNotFoundException e) {
-			BeanLoaderLogger.errorMessage(this.getClass().getName(), e);
-		}
-		return null;
+	public Collection<Object> getLoadedBeansOfType() {
+		return getLoadedBeansOfType(HotBean.class);
 	}
 
 	@Override
-	public <T> Collection<T> getLoadedBeansOfType(Class<T> filter) {
-		@SuppressWarnings("unchecked")
-		Map<String, T> beans = (Map<String, T>) applicationContext.getBeansOfType(filter.getClass());
-		System.out.println(beans.values());
+	public <T extends HotBean> Collection<Object> getLoadedBeansOfType(Class<T> filter) {
+		Map<String, Object> beans = applicationContext.getBeansWithAnnotation(filter);
+		BeanLoaderLogger.info(this.getClass().getName(), "Beans loaded of type '" + filter.getCanonicalName() + "' are '" + beans.values() + "'.");
 		return beans.values();
 	}
 
@@ -102,23 +91,22 @@ public class BeanLoader implements IBeanLoader {
 						if (!isClassLoaded(classLoader, className)) {
 							Class<?> classLoaded = classLoader.loadClass(className);
 							BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
-							System.out.println(!classLoaded.isInterface() + " - " + hasBasicConstructor(classLoaded) + " - "
-									+ filter.getClass().isAssignableFrom(classLoaded));
-							System.out.print(classLoader.getClass() + "/" + classLoader.getClass().getCanonicalName() + ": ");
-							System.out.print(classLoaded.getClass() + "/" + classLoaded.getClass().getCanonicalName() + ": ");
-							for (Class<?> interfaceOfClass : ClassUtils.getAllInterfaces(classLoaded)) {
-								System.out.print(interfaceOfClass + ", ");
-							}
-							System.out.println();
 
 							// Add it as a bean.
-							if (!classLoaded.isInterface() && hasBasicConstructor(classLoaded) && filter.getClass().isAssignableFrom(classLoaded)) {
-								ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
-								// Create bean if does not exists.
-								if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
-									Object bean = classLoaded.getDeclaredConstructor().newInstance();
-									beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
-									BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
+							if (!classLoaded.isInterface() && hasBasicConstructor(classLoaded)) {
+								// Has @HotBean annotation.
+								for (Annotation annotation : classLoaded.getDeclaredAnnotations()) {
+									if (annotation.annotationType().equals(HotBean.class)) {
+										BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName()
+												+ "' implements annotation '" + HotBean.class + "'.");
+										ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+										// Create bean if does not exists.
+										if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
+											Object bean = classLoaded.getDeclaredConstructor().newInstance();
+											beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
+											BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
+										}
+									}
 								}
 							}
 						} else {

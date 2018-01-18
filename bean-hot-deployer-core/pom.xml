@@ -34,6 +34,12 @@
 			<artifactId>common-utils</artifactId>
 			<version>${biit-common-utils.version}</version>
 		</dependency>
+		<!-- Project -->
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>${project.parent.artifactId}-annotations</artifactId>
+			<version>${project.version}</version>
+		</dependency>
 	</dependencies>
 
 	<build>

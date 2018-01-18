@@ -43,7 +43,8 @@ public interface IBeanLoader {
 	 *            filtering which beans are selected.
 	 * @return a list of bean classes.
 	 */
-	<T> Collection<T> getLoadedBeansOfType(Class<T> filter);
+	<T extends HotBean> Collection<Object> getLoadedBeansOfType(Class<T> filter);
 
-	Collection<?> getLoadedBeansOfType(String className);
+	Collection<Object> getLoadedBeansOfType();
+
 }
