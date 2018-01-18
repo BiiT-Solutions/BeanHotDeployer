@@ -1,5 +1,7 @@
 package com.biit.bean.loader;
 
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
@@ -9,7 +11,9 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
@@ -26,6 +30,7 @@ import com.biit.bean.loader.logger.BeanLoaderLogger;
 
 @Component
 public class BeanLoader implements IBeanLoader {
+	private final static String JAR_EXTENSION = ".jar";
 
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -36,90 +41,89 @@ public class BeanLoader implements IBeanLoader {
 
 	@PostConstruct
 	private void loadSettings() {
-		String defaultBeanClass = BeanLoaderConfigurationReader.getInstance().getDefaultBeanClassName();
-		String defaultBeanPacketPrefix = BeanLoaderConfigurationReader.getInstance().getDefaultBeanPacketPrefix();
+		String jarFolder = BeanLoaderConfigurationReader.getInstance().getBeansFolder();
+		String defaultBeanPacketPrefix = BeanLoaderConfigurationReader.getInstance().getBeanPacketPrefix();
 		// Load beans if settings are set.
-		if (defaultBeanClass.length() > 3 && defaultBeanPacketPrefix.length() > 3) {
-			BeanLoaderLogger.debug(this.getClass().getName(), "Reading configuration defined beans.");
-			try {
-				// Class<?> beanFilter = Class.forName(defaultBeanClass);
-				Class<?> beanFilter = Class.forName(defaultBeanClass);
-				BeanLoaderLogger.debug(this.getClass().getName(), "Using '" + defaultBeanClass + "' bean filter '" + beanFilter.getClass().getCanonicalName()
-						+ "'.");
-				loadBeansInJar(beanFilter, defaultBeanPacketPrefix);
-			} catch (ClassNotFoundException e) {
-				BeanLoaderLogger.warning(this.getClass().getName(), "Class not found '" + defaultBeanClass + "'.");
-			}
+		if (jarFolder.length() > 0) {
+			BeanLoaderLogger.debug(this.getClass().getName(), "Reading beans in '" + jarFolder + "'.");
+			loadBeansFromJar(HotBean.class, jarFolder, defaultBeanPacketPrefix);
 		}
 	}
 
-	private String getJarPath() {
-		return "/infographics plugins/test-patient-infographic-engine.jar";
+	@Override
+	public <T> Set<Object> getLoadedBeansOfType(Class<T> type) {
+		Set<Object> beansFiltered = new HashSet<Object>();
+		for (Object bean : getLoadedBeansWithAnnotation(HotBean.class)) {
+			if (type.isAssignableFrom(bean.getClass())) {
+				beansFiltered.add(bean);
+			}
+		}
+		return beansFiltered;
 	}
 
 	@Override
-	public Collection<Object> getLoadedBeansOfType() {
-		return getLoadedBeansOfType(HotBean.class);
-	}
-
-	@Override
-	public <T extends HotBean> Collection<Object> getLoadedBeansOfType(Class<T> filter) {
-		Map<String, Object> beans = applicationContext.getBeansWithAnnotation(filter);
-		BeanLoaderLogger.info(this.getClass().getName(), "Beans loaded of type '" + filter.getCanonicalName() + "' are '" + beans.values() + "'.");
+	public <T extends Annotation> Collection<Object> getLoadedBeansWithAnnotation(Class<T> beanAnnotation) {
+		Map<String, Object> beans = applicationContext.getBeansWithAnnotation(beanAnnotation);
+		BeanLoaderLogger.info(this.getClass().getName(), "Beans loaded of type '" + beanAnnotation.getCanonicalName() + "' are '" + beans.values() + "'.");
 		return beans.values();
 	}
 
 	@Override
-	public <T> void loadBeansInJar(Class<T> filter, String packetPrefixFilter) {
-		String pathToJar = getJarPath();
-		try (JarFile jarFile = new JarFile(pathToJar)) {
-			Enumeration<JarEntry> entries = jarFile.entries();
+	public <T extends Annotation> void loadBeansFromJar(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter) {
+		for (String pathToJar : getJars(folderWithJars)) {
+			try (JarFile jarFile = new JarFile(pathToJar)) {
+				Enumeration<JarEntry> entries = jarFile.entries();
 
-			URLClassLoader classLoader = new URLClassLoader(new URL[] { new URL("jar:file:" + pathToJar + "!/") }, applicationContext.getClassLoader());
+				URLClassLoader classLoader = new URLClassLoader(new URL[] { new URL("jar:file:" + pathToJar + "!/") }, applicationContext.getClassLoader());
 
-			while (entries.hasMoreElements()) {
-				JarEntry je = entries.nextElement();
-				if (je.isDirectory() || !je.getName().endsWith(".class")) {
-					continue;
-				}
-				// -6 because of .class
-				String className = je.getName().substring(0, je.getName().length() - 6);
-				className = className.replace('/', '.');
-				if (className.startsWith(packetPrefixFilter)) {
-					BeanLoaderLogger.debug(this.getClass().getName(), "Loading class '" + className + "'.");
-					try {
-						if (!isClassLoaded(classLoader, className)) {
-							Class<?> classLoaded = classLoader.loadClass(className);
-							BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
+				while (entries.hasMoreElements()) {
+					// Read jar elements.
+					JarEntry jarEntry = entries.nextElement();
+					// Search only for classes.
+					if (jarEntry.isDirectory() || !jarEntry.getName().endsWith(".class")) {
+						continue;
+					}
+					// Get the class name (-6 because of '.class').
+					String className = jarEntry.getName().substring(0, jarEntry.getName().length() - 6);
+					className = className.replace('/', '.');
+					if (className.startsWith(packetPrefixFilter)) {
+						BeanLoaderLogger.debug(this.getClass().getName(), "Loading class '" + className + "'.");
+						try {
+							// Is already on memory?
+							if (!isClassLoaded(classLoader, className)) {
+								Class<?> classLoaded = classLoader.loadClass(className);
+								BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
 
-							// Add it as a bean.
-							if (!classLoaded.isInterface() && hasBasicConstructor(classLoaded)) {
-								// Has @HotBean annotation.
-								for (Annotation annotation : classLoaded.getDeclaredAnnotations()) {
-									if (annotation.annotationType().equals(HotBean.class)) {
-										BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName()
-												+ "' implements annotation '" + HotBean.class + "'.");
-										ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
-										// Create bean if does not exists.
-										if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
-											Object bean = classLoaded.getDeclaredConstructor().newInstance();
-											beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
-											BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
+								// Add it as a bean.
+								if (!classLoaded.isInterface() && hasBasicConstructor(classLoaded)) {
+									// Has @HotBean annotation.
+									for (Annotation annotation : classLoaded.getDeclaredAnnotations()) {
+										if (annotation.annotationType().equals(beanAnnotation)) {
+											BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName()
+													+ "' implements annotation '" + HotBean.class + "'.");
+											ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext)
+													.getBeanFactory();
+											// Create bean if does not exists.
+											if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
+												Object bean = classLoaded.getDeclaredConstructor().newInstance();
+												beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
+												BeanLoaderLogger.debug(this.getClass().getName(), "Bean '" + bean + "' created.");
+											}
 										}
 									}
 								}
+							} else {
+								BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + className + "' already loaded!");
 							}
-						} else {
-							BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + className + "' already loaded!");
+						} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+								| ClassNotFoundException | InstantiationException e) {
+							BeanLoaderLogger.errorMessage(this.getClass().getName(), e);
 						}
-					} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-							| ClassNotFoundException | InstantiationException e) {
-						BeanLoaderLogger.errorMessage(this.getClass().getName(), e);
 					}
 				}
+			} catch (IOException ioe) {
+				BeanLoaderLogger.errorMessage(this.getClass().getName(), ioe);
 			}
-		} catch (IOException ioe) {
-			BeanLoaderLogger.errorMessage(this.getClass().getName(), ioe);
 		}
 	}
 
@@ -156,6 +160,24 @@ public class BeanLoader implements IBeanLoader {
 		}
 
 		return false;
+	}
+
+	private Set<String> getJars(String folderPath) {
+		Set<String> jarPaths = new HashSet<>();
+		File dir = new File(folderPath);
+		File[] files = dir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File folder, String fileName) {
+				BeanLoaderLogger.debug(this.getClass().getName(), "Found jar '" + fileName + "'.");
+				return fileName.endsWith(JAR_EXTENSION);
+			}
+		});
+
+		for (File jarfile : files) {
+			jarPaths.add(jarfile.getAbsolutePath());
+			System.out.println(jarfile.getAbsolutePath());
+		}
+		return jarPaths;
 	}
 
 }

@@ -1,7 +1,9 @@
 package com.biit.bean.loader;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Set;
 
 public interface IBeanLoader {
 
@@ -9,14 +11,14 @@ public interface IBeanLoader {
 	 * Loads Beans deployed as a JAR in the folder specific in the
 	 * configuration.
 	 * 
-	 * @param filter
-	 *            Class or interface that must implement the bean to be
-	 *            registered in Spring.
+	 * @param beanAnnotation
+	 *            annotation used to distinguish the bean.
+	 * @param folderWithJars
+	 *            path to a folder with jars that contains the beans.
 	 * @param packetPrefixFilter
-	 *            Starting prefix for the packet. For example
-	 *            '"com.biit.infographic"'.
+	 *            only scan classes that the packet starts with this string.
 	 */
-	<T> void loadBeansInJar(Class<T> filter, String packetPrefixFilter);
+	<T extends Annotation> void loadBeansFromJar(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter);
 
 	/**
 	 * Reads from a classLoader if a class has bean loaded or not.
@@ -43,8 +45,8 @@ public interface IBeanLoader {
 	 *            filtering which beans are selected.
 	 * @return a list of bean classes.
 	 */
-	<T extends HotBean> Collection<Object> getLoadedBeansOfType(Class<T> filter);
+	<T extends java.lang.annotation.Annotation> Collection<Object> getLoadedBeansWithAnnotation(Class<T> beanAnnotation);
 
-	Collection<Object> getLoadedBeansOfType();
+	<T> Set<Object> getLoadedBeansOfType(Class<T> type);
 
 }

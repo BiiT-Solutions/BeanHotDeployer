@@ -16,18 +16,17 @@ public class BeanLoaderConfigurationReader extends ConfigurationReader {
 
 	// Tags
 	private static final String ID_BEANS_FOLDER = "bean.deploy.folder";
-	private static final String ID_DEFAULT_BEAN_CLASS = "bean.default.class";
-	private static final String ID_DEFAULT_BEAN_PACKET = "bean.default.packet.prefix";
+	private static final String ID_BEAN_PACKET = "bean.packet.prefix";
 
 	// Default values
-	private static final String BEANS_FOLDER = System.getProperty("java.io.tmpdir");
+	private static final String DEFAULT_BEANS_FOLDER = System.getProperty("java.io.tmpdir");
+	private static final String DEFAULT_BEANS_PACKET = "com.biit";
 
 	private BeanLoaderConfigurationReader() {
 		super();
 
-		addProperty(ID_BEANS_FOLDER, BEANS_FOLDER);
-		addProperty(ID_DEFAULT_BEAN_CLASS, "");
-		addProperty(ID_DEFAULT_BEAN_PACKET, "");
+		addProperty(ID_BEANS_FOLDER, DEFAULT_BEANS_FOLDER);
+		addProperty(ID_BEAN_PACKET, DEFAULT_BEANS_PACKET);
 
 		PropertiesSourceFile sourceFile = new PropertiesSourceFile(CONFIG_FILE);
 		sourceFile.addFileModifiedListeners(new FileModifiedListener() {
@@ -88,12 +87,8 @@ public class BeanLoaderConfigurationReader extends ConfigurationReader {
 		return getPropertyLogException(ID_BEANS_FOLDER);
 	}
 
-	public String getDefaultBeanClassName() {
-		return getPropertyLogException(ID_DEFAULT_BEAN_CLASS);
-	}
-
-	public String getDefaultBeanPacketPrefix() {
-		return getPropertyLogException(ID_DEFAULT_BEAN_PACKET);
+	public String getBeanPacketPrefix() {
+		return getPropertyLogException(ID_BEAN_PACKET);
 	}
 
 }
