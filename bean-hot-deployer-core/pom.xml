@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>bean-hot-deployer-core</artifactId>
+	<packaging>jar</packaging>
+	<name>Bean Hot Deployer (Core)</name>
+	
+	<parent>
+		<groupId>com.biit</groupId>
+		<artifactId>bean-hot-deployer</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	
+
+	<dependencies>
+		<!-- Spring -->
+		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!-- Testing -->
+		<dependency>
+			<groupId>org.testng</groupId>
+			<artifactId>testng</artifactId>
+			<version>${org.testng.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<!-- File access and logger -->
+		<dependency>
+			<groupId>com.biit</groupId>
+			<artifactId>common-utils</artifactId>
+			<version>${biit-common-utils.version}</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire.version}</version>
+				<configuration>
+					<useFile>false</useFile>
+					<trimStackTrace>false</trimStackTrace>
+					<suiteXmlFiles>
+						<suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
+					</suiteXmlFiles>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+</project>

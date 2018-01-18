@@ -4,10 +4,15 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.biit</groupId>
 	<artifactId>bean-hot-deployer</artifactId>
-	<packaging>jar</packaging>
+	<packaging>pom</packaging>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Bean Hot Deployer</name>
 	<description>Bean deployer without restarting the tomcat server.</description>
+	
+	<modules>
+		<module>bean-hot-deployer-annotations</module>
+		<module>bean-hot-deployer-core</module>
+	</modules>
 
 
 	<distributionManagement>
@@ -79,18 +84,6 @@
 				<configuration>
 					<source>7</source>
 					<target>7</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire.version}</version>
-				<configuration>
-					<useFile>false</useFile>
-					<trimStackTrace>false</trimStackTrace>
-					<suiteXmlFiles>
-						<suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
-					</suiteXmlFiles>
 				</configuration>
 			</plugin>
 			<plugin>
