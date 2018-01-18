@@ -1,6 +1,7 @@
 package com.biit.bean.loader;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
+import org.springframework.util.ClassUtils;
 
 import com.biit.bean.loader.configuration.BeanLoaderConfigurationReader;
 import com.biit.bean.loader.logger.BeanLoaderLogger;
@@ -40,7 +42,10 @@ public class BeanLoader implements IBeanLoader {
 		if (defaultBeanClass.length() > 3 && defaultBeanPacketPrefix.length() > 3) {
 			BeanLoaderLogger.debug(this.getClass().getName(), "Reading configuration defined beans.");
 			try {
+				// Class<?> beanFilter = Class.forName(defaultBeanClass);
 				Class<?> beanFilter = Class.forName(defaultBeanClass);
+				BeanLoaderLogger.debug(this.getClass().getName(), "Using '" + defaultBeanClass + "' bean filter '" + beanFilter.getClass().getCanonicalName()
+						+ "'.");
 				loadBeansInJar(beanFilter, defaultBeanPacketPrefix);
 			} catch (ClassNotFoundException e) {
 				BeanLoaderLogger.warning(this.getClass().getName(), "Class not found '" + defaultBeanClass + "'.");
@@ -51,7 +56,7 @@ public class BeanLoader implements IBeanLoader {
 	}
 
 	private String getJarPath() {
-		return "/tmp/usmoorganization-patient-infographic-engine.jar";
+		return "/infographics plugins/test-patient-infographic-engine.jar";
 	}
 
 	@Override
@@ -59,6 +64,7 @@ public class BeanLoader implements IBeanLoader {
 		Class<?> beanFilter;
 		try {
 			beanFilter = Class.forName(className);
+			System.out.println("### " + beanFilter.getCanonicalName());
 			return getLoadedBeansOfType(beanFilter);
 		} catch (ClassNotFoundException e) {
 			BeanLoaderLogger.errorMessage(this.getClass().getName(), e);
@@ -70,6 +76,7 @@ public class BeanLoader implements IBeanLoader {
 	public <T> Collection<T> getLoadedBeansOfType(Class<T> filter) {
 		@SuppressWarnings("unchecked")
 		Map<String, T> beans = (Map<String, T>) applicationContext.getBeansOfType(filter.getClass());
+		System.out.println(beans.values());
 		return beans.values();
 	}
 
@@ -95,9 +102,17 @@ public class BeanLoader implements IBeanLoader {
 						if (!isClassLoaded(classLoader, className)) {
 							Class<?> classLoaded = classLoader.loadClass(className);
 							BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
+							System.out.println(!classLoaded.isInterface() + " - " + hasBasicConstructor(classLoaded) + " - "
+									+ filter.getClass().isAssignableFrom(classLoaded));
+							System.out.print(classLoader.getClass() + "/" + classLoader.getClass().getCanonicalName() + ": ");
+							System.out.print(classLoaded.getClass() + "/" + classLoaded.getClass().getCanonicalName() + ": ");
+							for (Class<?> interfaceOfClass : ClassUtils.getAllInterfaces(classLoaded)) {
+								System.out.print(interfaceOfClass + ", ");
+							}
+							System.out.println();
 
 							// Add it as a bean.
-							if (!classLoaded.isInterface() && filter.getClass().isAssignableFrom(classLoaded)) {
+							if (!classLoaded.isInterface() && hasBasicConstructor(classLoaded) && filter.getClass().isAssignableFrom(classLoaded)) {
 								ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
 								// Create bean if does not exists.
 								if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
@@ -143,6 +158,16 @@ public class BeanLoader implements IBeanLoader {
 		findLoadedClassMethod.setAccessible(true);
 		Object result = findLoadedClassMethod.invoke(classLoader, classToCheck);
 		return (result != null);
+	}
+
+	private boolean hasBasicConstructor(Class<?> clazz) {
+		for (Constructor<?> constructor : clazz.getConstructors()) {
+			if (constructor.getParameterTypes().length == 0) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 }
