@@ -47,6 +47,6 @@ public interface IBeanLoader {
 	 */
 	<T extends java.lang.annotation.Annotation> Collection<Object> getLoadedBeansWithAnnotation(Class<T> beanAnnotation);
 
-	<T> Set<Object> getLoadedBeansOfType(Class<T> type);
+	<T> Set<T> getLoadedBeansOfType(Class<T> type);
 
 }

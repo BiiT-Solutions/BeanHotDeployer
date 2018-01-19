@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashSet;
@@ -27,16 +28,20 @@ import org.springframework.stereotype.Component;
 
 import com.biit.bean.loader.configuration.BeanLoaderConfigurationReader;
 import com.biit.bean.loader.logger.BeanLoaderLogger;
+import com.biit.logger.BiitCommonLogger;
+import com.biit.utils.file.watcher.FileWatcher;
+import com.biit.utils.file.watcher.FileWatcher.FileAddedListener;
+import com.biit.utils.file.watcher.FileWatcher.FileRemovedListener;
 
 @Component
 public class BeanLoader implements IBeanLoader {
 	private final static String JAR_EXTENSION = ".jar";
+	private FileWatcher fileWatcher;
 
 	@Autowired
 	private ApplicationContext applicationContext;
 
 	public BeanLoader() {
-
 	}
 
 	@PostConstruct
@@ -47,17 +52,49 @@ public class BeanLoader implements IBeanLoader {
 		if (jarFolder.length() > 0) {
 			BeanLoaderLogger.debug(this.getClass().getName(), "Reading beans in '" + jarFolder + "'.");
 			loadBeansFromJar(HotBean.class, jarFolder, defaultBeanPacketPrefix);
+			susbscribeToFolder(jarFolder);
+		}
+	}
+
+	private void susbscribeToFolder(String directoryToWatch) {
+		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+		try {
+			fileWatcher = new FileWatcher(directoryToWatch);
+			fileWatcher.addFileAddedListener(new FileAddedListener() {
+
+				@Override
+				public void fileCreated(Path pathToFile) {
+					System.out.println("####################################");
+					System.out.println(" NEW BEAN!!");
+					System.out.println("####################################");
+				}
+			});
+			fileWatcher.addFileRemovedListener(new FileRemovedListener() {
+
+				@Override
+				public void fileDeleted(Path pathToFile) {
+					System.out.println("####################################");
+					System.out.println(" Removed BEAN!!");
+					System.out.println("####################################");
+				}
+			});
+		} catch (IOException e) {
+			BiitCommonLogger.errorMessageNotification(this.getClass(), e);
+		} catch (NullPointerException npe) {
+			BiitCommonLogger.warning(this.getClass(), "Directory to watch not found!");
 		}
 	}
 
 	@Override
-	public <T> Set<Object> getLoadedBeansOfType(Class<T> type) {
-		Set<Object> beansFiltered = new HashSet<Object>();
-		for (Object bean : getLoadedBeansWithAnnotation(HotBean.class)) {
+	@SuppressWarnings("unchecked")
+	public <T> Set<T> getLoadedBeansOfType(Class<T> type) {
+		Set<T> beansFiltered = new HashSet<T>();
+		for (Object bean : applicationContext.getBeansWithAnnotation(HotBean.class).values()) {
 			if (type.isAssignableFrom(bean.getClass())) {
-				beansFiltered.add(bean);
+				beansFiltered.add((T) bean);
 			}
 		}
+		BeanLoaderLogger.info(this.getClass().getName(), "Beans loaded of type '" + type.getCanonicalName() + "' are '" + beansFiltered + "'.");
 		return beansFiltered;
 	}
 
@@ -168,16 +205,14 @@ public class BeanLoader implements IBeanLoader {
 		File[] files = dir.listFiles(new FilenameFilter() {
 			@Override
 			public boolean accept(File folder, String fileName) {
-				BeanLoaderLogger.debug(this.getClass().getName(), "Found jar '" + fileName + "'.");
 				return fileName.endsWith(JAR_EXTENSION);
 			}
 		});
 
 		for (File jarfile : files) {
+			BeanLoaderLogger.debug(this.getClass().getName(), "JAR file found '" + jarfile.getAbsolutePath() + "'.");
 			jarPaths.add(jarfile.getAbsolutePath());
-			System.out.println(jarfile.getAbsolutePath());
 		}
 		return jarPaths;
 	}
-
 }
