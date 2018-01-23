@@ -18,7 +18,7 @@ public interface IBeanLoader {
 	 * @param packetPrefixFilter
 	 *            only scan classes that the packet starts with this string.
 	 */
-	<T extends Annotation> void loadBeansFromJar(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter);
+	<T extends Annotation> void loadBeansFromFolder(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter);
 
 	/**
 	 * Reads from a classLoader if a class has bean loaded or not.
