@@ -3,11 +3,11 @@
 	<test name="BeanHotDeploy" enabled="true" preserve-order="true">
 		<groups>
 			<run>
-				<!--  <include name="infographicEngine" /> -->
+				<include name="folderWatcherTests" />
 			</run>
 		</groups>
 		<classes>
-			<!--  <class name="com.biit.infographic.engine.InfographicEngineTest" /> -->
+			<class name="com.biit.hotdeploy.bean.FolderWatcherTests" />
 		</classes>
 	</test>
 </suite>
