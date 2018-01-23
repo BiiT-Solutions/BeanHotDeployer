@@ -29,9 +29,9 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git.biit-solutions.com:BeanHotDeploy.git</connection>
-		<developerConnection>scm:git:git.biit-solutions.com:BeanHotDeploy.git</developerConnection>
-		<tag>bean-hot-deploy</tag>
+		<connection>scm:git:git.biit-solutions.com:BeanHotDeployer.git</connection>
+		<developerConnection>scm:git:git.biit-solutions.com:BeanHotDeployer.git</developerConnection>
+		<tag>bean-hot-deployer</tag>
 	</scm>
 
 	<properties>
