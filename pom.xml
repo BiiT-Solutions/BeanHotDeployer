@@ -4,7 +4,7 @@
 	<groupId>com.biit</groupId>
 	<artifactId>bean-hot-deployer</artifactId>
 	<packaging>pom</packaging>
-	<version>0.0.4</version>
+	<version>0.0.5-SNAPSHOT</version>
 	<name>Bean Hot Deployer</name>
 	<description>Bean deployer without restarting the tomcat server.</description>
 	
@@ -30,7 +30,7 @@
 	<scm>
 		<connection>scm:git:git.biit-solutions.com:BeanHotDeployer.git</connection>
 		<developerConnection>scm:git:git.biit-solutions.com:BeanHotDeployer.git</developerConnection>
-		<tag>bean-hot-deployer-0.0.4</tag>
+		<tag>bean-hot-deployer</tag>
 	</scm>
 
 	<properties>
