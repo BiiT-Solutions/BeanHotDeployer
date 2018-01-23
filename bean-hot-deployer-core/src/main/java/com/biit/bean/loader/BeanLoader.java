@@ -57,9 +57,10 @@ public class BeanLoader implements IBeanLoader {
 	}
 
 	private void susbscribeToFolder(String directoryToWatch) {
-		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+		System.out.println("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%1");
 		try {
-			fileWatcher = new FileWatcher(directoryToWatch);
+			
+			fileWatcher = new FileWatcher(directoryToWatch, null);
 			fileWatcher.addFileAddedListener(new FileAddedListener() {
 
 				@Override
