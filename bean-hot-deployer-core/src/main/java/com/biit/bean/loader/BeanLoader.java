@@ -23,6 +23,7 @@ import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
+import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
@@ -178,7 +179,7 @@ public class BeanLoader implements IBeanLoader {
 		if (beansPerJar != null && beansPerJar.get(jarName) != null) {
 			for (String beanName : beansPerJar.get(jarName)) {
 				ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
-				beanFactory.destroyBean(beanName);
+				((DefaultListableBeanFactory) beanFactory).destroySingleton(beanName);
 				BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + beanName + "' destroyed.");
 			}
 			beansPerJar.remove(jarName);
