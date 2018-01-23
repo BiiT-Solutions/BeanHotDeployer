@@ -62,9 +62,7 @@ public class BeanLoader implements IBeanLoader {
 	}
 
 	private void susbscribeToFolder(String directoryToWatch) {
-		// System.out.println(FileWatcher.class.getResource("FileWatcher.class"));
 		try {
-
 			fileWatcher = new FileWatcher(directoryToWatch);
 			fileWatcher.addFileAddedListener(new FileAddedListener() {
 
@@ -98,7 +96,7 @@ public class BeanLoader implements IBeanLoader {
 				beansFiltered.add((T) bean);
 			}
 		}
-		BeanLoaderLogger.info(this.getClass().getName(), "Beans loaded of type '" + type.getCanonicalName() + "' are '" + beansFiltered + "'.");
+		BeanLoaderLogger.debug(this.getClass().getName(), "Beans loaded of type '" + type.getCanonicalName() + "' are '" + beansFiltered + "'.");
 		return beansFiltered;
 	}
 
@@ -217,7 +215,6 @@ public class BeanLoader implements IBeanLoader {
 				return true;
 			}
 		}
-
 		return false;
 	}
 
@@ -240,7 +237,7 @@ public class BeanLoader implements IBeanLoader {
 
 	/**
 	 * FileWatcher is too quick and we need to wait until the jar file is
-	 * completly copied.
+	 * completely copied.
 	 */
 	private void waitUntilJarIsCopied(String pathToJar) {
 		int bound = 1;
