@@ -228,9 +228,11 @@ public class BeanLoader implements IBeanLoader {
 			}
 		});
 
-		for (File jarfile : files) {
-			BeanLoaderLogger.debug(this.getClass().getName(), "JAR file found '" + jarfile.getAbsolutePath() + "'.");
-			jarPaths.add(jarfile.getAbsolutePath());
+		if (files != null) {
+			for (File jarfile : files) {
+				BeanLoaderLogger.debug(this.getClass().getName(), "JAR file found '" + jarfile.getAbsolutePath() + "'.");
+				jarPaths.add(jarfile.getAbsolutePath());
+			}
 		}
 		return jarPaths;
 	}
