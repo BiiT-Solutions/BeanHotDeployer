@@ -22,6 +22,7 @@ import java.util.jar.JarFile;
 import javax.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.context.ApplicationContext;
@@ -44,6 +45,9 @@ public class BeanLoader implements IBeanLoader {
 
 	@Autowired
 	private ApplicationContext applicationContext;
+
+	@Autowired
+	private AutowireCapableBeanFactory autowiredBeanFactory;
 
 	public BeanLoader() {
 		beansPerJar = new HashMap<>();
@@ -150,6 +154,7 @@ public class BeanLoader implements IBeanLoader {
 										if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
 											Object bean = classLoaded.getDeclaredConstructor().newInstance();
 											beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
+											autowiredBeanFactory.autowireBean(bean);
 											BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
 
 											// Store bean from jar.
@@ -179,6 +184,7 @@ public class BeanLoader implements IBeanLoader {
 				ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
 				((DefaultListableBeanFactory) beanFactory).destroySingleton(beanName);
 				BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + beanName + "' destroyed.");
+				//autowiredBeanFactory.destroyBean(existingBean);
 			}
 			beansPerJar.remove(jarName);
 		}
