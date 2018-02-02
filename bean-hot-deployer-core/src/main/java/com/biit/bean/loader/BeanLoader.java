@@ -10,10 +10,13 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.jar.JarEntry;
@@ -29,6 +32,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.stereotype.Component;
 
+import com.biit.bean.loader.comparator.HotBeanPriorityComparator;
 import com.biit.bean.loader.configuration.BeanLoaderConfigurationReader;
 import com.biit.bean.loader.logger.BeanLoaderLogger;
 import com.biit.logger.BiitCommonLogger;
@@ -112,19 +116,20 @@ public class BeanLoader implements IBeanLoader {
 	}
 
 	@Override
-	public <T extends Annotation> void loadBeansFromFolder(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter) {
+	public <T extends HotBean> void loadBeansFromFolder(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter) {
 		for (String pathToJar : getJars(folderWithJars)) {
 			loadBeansFromJar(beanAnnotation, pathToJar, packetPrefixFilter);
 		}
 	}
 
-	public <T extends Annotation> void loadBeansFromJar(Class<T> beanAnnotation, String pathToJar, String packetPrefixFilter) {
+	public <T extends HotBean> void loadBeansFromJar(Class<T> beanAnnotation, String pathToJar, String packetPrefixFilter) {
 		BeanLoaderLogger.debug(this.getClass().getName(), "Loading beans from '" + pathToJar + "'.");
 		try (JarFile jarFile = new JarFile(pathToJar)) {
 			Enumeration<JarEntry> entries = jarFile.entries();
 
 			URLClassLoader classLoader = new URLClassLoader(new URL[] { new URL("jar:file:" + pathToJar + "!/") }, applicationContext.getClassLoader());
 
+			List<Class<?>> beansToAdd = new ArrayList<>();
 			while (entries.hasMoreElements()) {
 				// Read jar elements.
 				JarEntry jarEntry = entries.nextElement();
@@ -148,18 +153,8 @@ public class BeanLoader implements IBeanLoader {
 								for (Annotation annotation : classLoaded.getDeclaredAnnotations()) {
 									if (annotation.annotationType().equals(beanAnnotation)) {
 										BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName()
-												+ "' implements annotation '" + HotBean.class + "'.");
-										ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
-										// Create bean if does not exists.
-										if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
-											Object bean = classLoaded.getDeclaredConstructor().newInstance();
-											beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
-											autowiredBeanFactory.autowireBean(bean);
-											BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
-
-											// Store bean from jar.
-											registerBean(pathToJar, classLoaded.getCanonicalName());
-										}
+												+ "' implements annotation '" + beanAnnotation.getClass() + "'.");
+										beansToAdd.add((Class<?>) classLoaded);
 									}
 								}
 							}
@@ -167,13 +162,41 @@ public class BeanLoader implements IBeanLoader {
 							BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + className + "' already loaded!");
 						}
 					} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
-							| ClassNotFoundException | InstantiationException e) {
+							| ClassNotFoundException e) {
 						BeanLoaderLogger.errorMessage(this.getClass().getName(), e);
 					}
 				}
 			}
+			Collections.sort(beansToAdd, new HotBeanPriorityComparator());
+			autowireBeans(pathToJar, beansToAdd);
 		} catch (IOException ioe) {
 			BeanLoaderLogger.errorMessage(this.getClass().getName(), ioe);
+		}
+	}
+
+	private void autowireBeans(String pathToJar, List<Class<?>> classesLoaded) {
+		for (Class<?> classLoaded : classesLoaded) {
+			autowireBean(pathToJar, classLoaded);
+		}
+	}
+
+	private void autowireBean(String pathToJar, Class<?> classLoaded) {
+		ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+
+		// Create bean if does not exists.
+		if (beanFactory.getSingleton(classLoaded.getCanonicalName()) == null) {
+			try {
+				Object bean = classLoaded.getDeclaredConstructor().newInstance();
+				beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
+				autowiredBeanFactory.autowireBean(bean);
+				BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
+
+				// Store bean from jar.
+				registerBean(pathToJar, classLoaded.getCanonicalName());
+			} catch (NoSuchMethodError | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+					| NoSuchMethodException | SecurityException nsme) {
+				BeanLoaderLogger.errorMessage(this.getClass().getName(), nsme);
+			}
 		}
 	}
 
@@ -184,7 +207,7 @@ public class BeanLoader implements IBeanLoader {
 				ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
 				((DefaultListableBeanFactory) beanFactory).destroySingleton(beanName);
 				BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + beanName + "' destroyed.");
-				//autowiredBeanFactory.destroyBean(existingBean);
+				// autowiredBeanFactory.destroyBean(existingBean);
 			}
 			beansPerJar.remove(jarName);
 		}

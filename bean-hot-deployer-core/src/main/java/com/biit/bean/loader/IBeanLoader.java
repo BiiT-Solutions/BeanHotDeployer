@@ -1,6 +1,5 @@
 package com.biit.bean.loader;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.Set;
@@ -18,7 +17,7 @@ public interface IBeanLoader {
 	 * @param packetPrefixFilter
 	 *            only scan classes that the packet starts with this string.
 	 */
-	<T extends Annotation> void loadBeansFromFolder(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter);
+	<T extends HotBean> void loadBeansFromFolder(Class<T> beanAnnotation, String folderWithJars, String packetPrefixFilter);
 
 	/**
 	 * Reads from a classLoader if a class has bean loaded or not.
@@ -48,5 +47,4 @@ public interface IBeanLoader {
 	<T extends java.lang.annotation.Annotation> Collection<Object> getLoadedBeansWithAnnotation(Class<T> beanAnnotation);
 
 	<T> Set<T> getLoadedBeansOfType(Class<T> type);
-
 }

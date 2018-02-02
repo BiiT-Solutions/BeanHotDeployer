@@ -4,10 +4,12 @@
 		<groups>
 			<run>
 				<include name="folderWatcherTests" />
+				<include name="beanSorting" />
 			</run>
 		</groups>
 		<classes>
 			<class name="com.biit.hotdeploy.bean.FolderWatcherTests" />
+			<class name="com.biit.hotdeploy.bean.BeanSorting" />
 		</classes>
 	</test>
 </suite>

@@ -9,5 +9,6 @@ import java.lang.annotation.RetentionPolicy;
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HotBean {
-
+	// Highest priority are loaded first.
+	int priority() default 0;
 }
