@@ -36,6 +36,7 @@ import com.biit.bean.loader.comparator.HotBeanPriorityComparator;
 import com.biit.bean.loader.configuration.BeanLoaderConfigurationReader;
 import com.biit.bean.loader.logger.BeanLoaderLogger;
 import com.biit.logger.BiitCommonLogger;
+import com.biit.utils.file.FileReader;
 import com.biit.utils.file.watcher.FileWatcher;
 import com.biit.utils.file.watcher.FileWatcher.FileAddedListener;
 import com.biit.utils.file.watcher.FileWatcher.FileRemovedListener;
@@ -46,6 +47,7 @@ public class BeanLoader implements IBeanLoader {
 	private final static int MAX_RETRIES_JAR_WRITTEN = 100;
 	private FileWatcher fileWatcher;
 	private Map<String, Set<String>> beansPerJar;
+	private Map<String, Class<?>> beansClassLoaded;
 
 	@Autowired
 	private ApplicationContext applicationContext;
@@ -55,6 +57,7 @@ public class BeanLoader implements IBeanLoader {
 
 	public BeanLoader() {
 		beansPerJar = new HashMap<>();
+		beansClassLoaded = new HashMap<>();
 	}
 
 	@PostConstruct
@@ -63,10 +66,15 @@ public class BeanLoader implements IBeanLoader {
 		String defaultBeanPacketPrefix = BeanLoaderConfigurationReader.getInstance().getBeanPacketPrefix();
 		// Load beans if settings are set.
 		if (jarFolder.length() > 0) {
-			BeanLoaderLogger.debug(this.getClass().getName(), "Reading beans in '" + jarFolder + "'.");
-			loadBeansFromFolder(HotBean.class, jarFolder, defaultBeanPacketPrefix);
-			susbscribeToFolder(jarFolder);
+			loadSettings(jarFolder, defaultBeanPacketPrefix);
 		}
+	}
+
+	@Override
+	public void loadSettings(String jarFolder, String beanPacketPrefix) {
+		BeanLoaderLogger.debug(this.getClass().getName(), "Reading beans in '" + jarFolder + "'.");
+		loadBeansFromFolder(HotBean.class, jarFolder, beanPacketPrefix);
+		susbscribeToFolder(jarFolder);
 	}
 
 	private void susbscribeToFolder(String directoryToWatch) {
@@ -123,6 +131,18 @@ public class BeanLoader implements IBeanLoader {
 	}
 
 	public <T extends HotBean> void loadBeansFromJar(Class<T> beanAnnotation, String pathToJar, String packetPrefixFilter) {
+		// Check if it is a valid jar.
+		try {
+			if (!FileReader.isJarFile(pathToJar)) {
+				BeanLoaderLogger.warning(this.getClass().getName(), "File '" + pathToJar + "' is not a Jar file.");
+				return;
+			}
+		} catch (IOException e1) {
+			BeanLoaderLogger.errorMessage(this.getClass().getName(), e1);
+			return;
+		}
+
+		// Load beans
 		BeanLoaderLogger.debug(this.getClass().getName(), "Loading beans from '" + pathToJar + "'.");
 		try (JarFile jarFile = new JarFile(pathToJar)) {
 			Enumeration<JarEntry> entries = jarFile.entries();
@@ -155,6 +175,7 @@ public class BeanLoader implements IBeanLoader {
 										BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName()
 												+ "' implements annotation '" + beanAnnotation.getClass() + "'.");
 										beansToAdd.add((Class<?>) classLoaded);
+										beansClassLoaded.put(className, (Class<?>) classLoaded);
 									}
 								}
 							}
@@ -299,5 +320,10 @@ public class BeanLoader implements IBeanLoader {
 			beansPerJar.put(jarName, new HashSet<String>());
 		}
 		beansPerJar.get(jarName).add(beanName);
+	}
+
+	@Override
+	public Map<String, Class<?>> getBeansClassLoaded() {
+		return beansClassLoaded;
 	}
 }

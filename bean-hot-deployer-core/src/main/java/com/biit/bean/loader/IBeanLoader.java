@@ -2,6 +2,7 @@ package com.biit.bean.loader;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 public interface IBeanLoader {
@@ -47,4 +48,8 @@ public interface IBeanLoader {
 	<T extends java.lang.annotation.Annotation> Collection<Object> getLoadedBeansWithAnnotation(Class<T> beanAnnotation);
 
 	<T> Set<T> getLoadedBeansOfType(Class<T> type);
+
+	void loadSettings(String jarFolder, String beanPacketPrefix);
+
+	Map<String, Class<?>> getBeansClassLoaded();
 }
