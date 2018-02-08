@@ -7,6 +7,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
@@ -47,6 +48,7 @@ public class BeanLoader implements IBeanLoader {
 	private final static int MAX_RETRIES_JAR_WRITTEN = 100;
 	private FileWatcher fileWatcher;
 	private Map<String, Set<String>> beansPerJar;
+	private Map<String, URLClassLoader> classLoaderPerJar;
 	private Map<String, Class<?>> beansClassLoaded;
 
 	@Autowired
@@ -56,8 +58,13 @@ public class BeanLoader implements IBeanLoader {
 	private AutowireCapableBeanFactory autowiredBeanFactory;
 
 	public BeanLoader() {
+		reset();
+	}
+
+	private void reset() {
 		beansPerJar = new HashMap<>();
 		beansClassLoaded = new HashMap<>();
+		classLoaderPerJar = new HashMap<>();
 	}
 
 	@PostConstruct
@@ -72,7 +79,7 @@ public class BeanLoader implements IBeanLoader {
 
 	@Override
 	public void loadSettings(String jarFolder, String beanPacketPrefix) {
-		BeanLoaderLogger.debug(this.getClass().getName(), "Reading beans in '" + jarFolder + "'.");
+		BeanLoaderLogger.debug(getClass().getName(), "Reading beans in '" + jarFolder + "'.");
 		loadBeansFromFolder(HotBean.class, jarFolder, beanPacketPrefix);
 		susbscribeToFolder(jarFolder);
 	}
@@ -94,12 +101,14 @@ public class BeanLoader implements IBeanLoader {
 				@Override
 				public void fileDeleted(Path pathToFile) {
 					removeBeansFromJar(pathToFile.toString());
+					BeanLoaderLogger.debug(getClass().getName(), "Removing classloader '" + pathToFile.toString() + "'.");
+					classLoaderPerJar.remove(pathToFile.toString());
 				}
 			});
 		} catch (IOException e) {
-			BiitCommonLogger.errorMessageNotification(this.getClass(), e);
+			BiitCommonLogger.errorMessageNotification(getClass(), e);
 		} catch (NullPointerException npe) {
-			BiitCommonLogger.warning(this.getClass(), "Directory to watch not found!");
+			BiitCommonLogger.warning(getClass(), "Directory to watch not found!");
 		}
 	}
 
@@ -112,14 +121,14 @@ public class BeanLoader implements IBeanLoader {
 				beansFiltered.add((T) bean);
 			}
 		}
-		BeanLoaderLogger.debug(this.getClass().getName(), "Beans loaded of type '" + type.getCanonicalName() + "' are '" + beansFiltered + "'.");
+		BeanLoaderLogger.debug(getClass().getName(), "Beans loaded of type '" + type.getCanonicalName() + "' are '" + beansFiltered + "'.");
 		return beansFiltered;
 	}
 
 	@Override
 	public <T extends Annotation> Collection<Object> getLoadedBeansWithAnnotation(Class<T> beanAnnotation) {
 		Map<String, Object> beans = applicationContext.getBeansWithAnnotation(beanAnnotation);
-		BeanLoaderLogger.info(this.getClass().getName(), "Beans loaded of type '" + beanAnnotation.getCanonicalName() + "' are '" + beans.values() + "'.");
+		BeanLoaderLogger.info(getClass().getName(), "Beans loaded of type '" + beanAnnotation.getCanonicalName() + "' are '" + beans.values() + "'.");
 		return beans.values();
 	}
 
@@ -134,20 +143,20 @@ public class BeanLoader implements IBeanLoader {
 		// Check if it is a valid jar.
 		try {
 			if (!FileReader.isJarFile(pathToJar)) {
-				BeanLoaderLogger.warning(this.getClass().getName(), "File '" + pathToJar + "' is not a Jar file.");
+				BeanLoaderLogger.warning(getClass().getName(), "File '" + pathToJar + "' is not a Jar file.");
 				return;
 			}
 		} catch (IOException e1) {
-			BeanLoaderLogger.errorMessage(this.getClass().getName(), e1);
+			BeanLoaderLogger.errorMessage(getClass().getName(), e1);
 			return;
 		}
 
 		// Load beans
-		BeanLoaderLogger.debug(this.getClass().getName(), "Loading beans from '" + pathToJar + "'.");
+		BeanLoaderLogger.debug(getClass().getName(), "Loading beans from '" + pathToJar + "'.");
 		try (JarFile jarFile = new JarFile(pathToJar)) {
 			Enumeration<JarEntry> entries = jarFile.entries();
 
-			URLClassLoader classLoader = new URLClassLoader(new URL[] { new URL("jar:file:" + pathToJar + "!/") }, applicationContext.getClassLoader());
+			URLClassLoader classLoader = getClassLoader(pathToJar);
 
 			List<Class<?>> beansToAdd = new ArrayList<>();
 			while (entries.hasMoreElements()) {
@@ -162,37 +171,45 @@ public class BeanLoader implements IBeanLoader {
 				className = className.replace('/', '.');
 				if (className.startsWith(packetPrefixFilter)) {
 					try {
-						// Is already on memory?
+						// It is already on memory?
 						if (!isClassLoaded(classLoader, className)) {
 							Class<?> classLoaded = classLoader.loadClass(className);
-							BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
+							BeanLoaderLogger.debug(getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' loaded.");
 
 							// Add it as a bean.
 							if (!classLoaded.isInterface() && hasBasicConstructor(classLoaded)) {
 								// Has @HotBean annotation.
 								for (Annotation annotation : classLoaded.getDeclaredAnnotations()) {
 									if (annotation.annotationType().equals(beanAnnotation)) {
-										BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + classLoaded.getCanonicalName()
-												+ "' implements annotation '" + beanAnnotation.getClass() + "'.");
+										BeanLoaderLogger.debug(getClass().getName(), "Class '" + classLoaded.getCanonicalName() + "' implements annotation '"
+												+ beanAnnotation.getClass() + "'.");
 										beansToAdd.add((Class<?>) classLoaded);
 										beansClassLoaded.put(className, (Class<?>) classLoaded);
 									}
 								}
 							}
 						} else {
-							BeanLoaderLogger.debug(this.getClass().getName(), "Class '" + className + "' already loaded!");
+							BeanLoaderLogger.debug(getClass().getName(), "Class '" + className + "' already loaded!");
 						}
 					} catch (NoSuchMethodException | SecurityException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 							| ClassNotFoundException e) {
-						BeanLoaderLogger.errorMessage(this.getClass().getName(), e);
+						BeanLoaderLogger.errorMessage(getClass().getName(), e);
 					}
 				}
 			}
 			Collections.sort(beansToAdd, new HotBeanPriorityComparator());
 			autowireBeans(pathToJar, beansToAdd);
 		} catch (IOException ioe) {
-			BeanLoaderLogger.errorMessage(this.getClass().getName(), ioe);
+			BeanLoaderLogger.errorMessage(getClass().getName(), ioe);
 		}
+	}
+
+	private URLClassLoader getClassLoader(String pathToJar) throws MalformedURLException {
+		if (classLoaderPerJar.get(pathToJar) == null) {
+			BeanLoaderLogger.debug(getClass().getName(), "Creating classloader '" + pathToJar + "'.");
+			classLoaderPerJar.put(pathToJar, new URLClassLoader(new URL[] { new URL("jar:file:" + pathToJar + "!/") }, applicationContext.getClassLoader()));
+		}
+		return classLoaderPerJar.get(pathToJar);
 	}
 
 	private void autowireBeans(String pathToJar, List<Class<?>> classesLoaded) {
@@ -210,24 +227,25 @@ public class BeanLoader implements IBeanLoader {
 				Object bean = classLoaded.getDeclaredConstructor().newInstance();
 				beanFactory.registerSingleton(classLoaded.getCanonicalName(), bean);
 				autowiredBeanFactory.autowireBean(bean);
-				BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + bean + "' created.");
+				BeanLoaderLogger.info(getClass().getName(), "Bean '" + bean + "' created.");
 
 				// Store bean from jar.
 				registerBean(pathToJar, classLoaded.getCanonicalName());
 			} catch (NoSuchMethodError | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
 					| NoSuchMethodException | SecurityException nsme) {
-				BeanLoaderLogger.errorMessage(this.getClass().getName(), nsme);
+				BeanLoaderLogger.errorMessage(getClass().getName(), nsme);
 			}
 		}
 	}
 
 	public void removeBeansFromJar(String jarName) {
-		BeanLoaderLogger.debug(this.getClass().getName(), "Removing beans from '" + jarName + "'.");
+		BeanLoaderLogger.debug(getClass().getName(), "Removing beans from '" + jarName + "'.");
 		if (beansPerJar != null && beansPerJar.get(jarName) != null) {
 			for (String beanName : beansPerJar.get(jarName)) {
 				ConfigurableListableBeanFactory beanFactory = ((ConfigurableApplicationContext) applicationContext).getBeanFactory();
+				// Object existingBean = beanFactory.getBean(beanName);
 				((DefaultListableBeanFactory) beanFactory).destroySingleton(beanName);
-				BeanLoaderLogger.info(this.getClass().getName(), "Bean '" + beanName + "' destroyed.");
+				BeanLoaderLogger.info(getClass().getName(), "Bean '" + beanName + "' destroyed.");
 				// autowiredBeanFactory.destroyBean(existingBean);
 			}
 			beansPerJar.remove(jarName);
@@ -280,7 +298,7 @@ public class BeanLoader implements IBeanLoader {
 
 		if (files != null) {
 			for (File jarfile : files) {
-				BeanLoaderLogger.debug(this.getClass().getName(), "JAR file found '" + jarfile.getAbsolutePath() + "'.");
+				BeanLoaderLogger.debug(getClass().getName(), "JAR file found '" + jarfile.getAbsolutePath() + "'.");
 				jarPaths.add(jarfile.getAbsolutePath());
 			}
 		}
@@ -303,15 +321,15 @@ public class BeanLoader implements IBeanLoader {
 			bound++;
 			// Wait some time.
 			try {
-				BeanLoaderLogger.debug(this.getClass().getName(), "Waiting until the complete creation of file '" + pathToJar.toString() + "'.");
+				BeanLoaderLogger.debug(getClass().getName(), "Waiting until the complete creation of file '" + pathToJar.toString() + "'.");
 				Thread.sleep(100);
 			} catch (InterruptedException ex) {
-				BeanLoaderLogger.errorMessage(this.getClass().getName(), ex);
+				BeanLoaderLogger.errorMessage(getClass().getName(), ex);
 			}
 		} while (bound < MAX_RETRIES_JAR_WRITTEN);
 
 		if (bound < MAX_RETRIES_JAR_WRITTEN) {
-			BeanLoaderLogger.debug(this.getClass().getName(), "File '" + pathToJar.toString() + "' completed.");
+			BeanLoaderLogger.debug(getClass().getName(), "File '" + pathToJar.toString() + "' completed.");
 		}
 	}
 
