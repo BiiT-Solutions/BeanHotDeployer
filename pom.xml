@@ -18,12 +18,12 @@
 		<repository>
 			<id>central</id>
 			<name>libs-releases</name>
-			<url>https://git.biit-solutions.com:8443/artifactory/libs-release</url>
+			<url>https://dev.biit-solutions.com/artifactory/libs-release</url>
 		</repository>
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>libs-snapshot</name>
-			<url>https://git.biit-solutions.com:8443/artifactory/libs-snapshot</url>
+			<url>https://dev.biit-solutions.com/artifactory/libs-snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
 
