@@ -46,7 +46,7 @@
 		<maven-scm-provider-gitexe.version>1.9.2</maven-scm-provider-gitexe.version>
 		<org.springframework.version>4.3.16.RELEASE</org.springframework.version>
 		<!-- BiiT dependencies -->
-		<biit-common-utils.version>[0.4,0.5)</biit-common-utils.version>
+		<biit-common-utils.version>[1.0,1.1)</biit-common-utils.version>
 	</properties>
 
 	<dependencies>
