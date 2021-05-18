@@ -29,7 +29,7 @@
 
 	<scm>
 		<connection>scm:git:git.biit-solutions.com:BiiT/BeanHotDeployer.git</connection>
-		<connection>scm:git:git.biit-solutions.com:BiiT/BeanHotDeployer.git</developerConnection>
+		<developerConnection>scm:git:git.biit-solutions.com:BiiT/BeanHotDeployer.git</developerConnection>
 		<tag>bean-hot-deployer</tag>
 	</scm>
 
