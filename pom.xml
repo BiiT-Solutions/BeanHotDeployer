@@ -4,7 +4,7 @@
 	<groupId>com.biit</groupId>
 	<artifactId>bean-hot-deployer</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.10-SNAPSHOT</version>
+	<version>1.1.1-SNAPSHOT</version>
 	<name>Bean Hot Deployer</name>
 	<description>Bean deployer without restarting the tomcat server.</description>
 	
@@ -41,12 +41,11 @@
 		<maven-surefire.version>2.17</maven-surefire.version>
 		<exec-maven-plugin.version>1.2.1</exec-maven-plugin.version>
 		<org.testng.version>6.8.7</org.testng.version>
-		<log4j.version>1.2.17</log4j.version>
 		<maven-release-plugin.version>2.5.1</maven-release-plugin.version>
 		<maven-scm-provider-gitexe.version>1.9.2</maven-scm-provider-gitexe.version>
 		<org.springframework.version>4.3.16.RELEASE</org.springframework.version>
 		<!-- BiiT dependencies -->
-		<biit-common-utils.version>[1.0,1.1)</biit-common-utils.version>
+		<biit-common-utils.version>[1.1,1.2)</biit-common-utils.version>
 	</properties>
 
 	<dependencies>
