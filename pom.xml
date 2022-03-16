@@ -4,7 +4,7 @@
 	<groupId>com.biit</groupId>
 	<artifactId>bean-hot-deployer</artifactId>
 	<packaging>pom</packaging>
-	<version>1.0.5-SNAPSHOT</version>
+	<version>1.1.2-SNAPSHOT</version>
 	<name>Bean Hot Deployer</name>
 	<description>Bean deployer without restarting the tomcat server.</description>
 
@@ -14,7 +14,7 @@
 		<version>[0.1,0.2)</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	
+
 	<modules>
 		<module>bean-hot-deployer-annotations</module>
 		<module>bean-hot-deployer-core</module>
@@ -25,18 +25,18 @@
 		<repository>
 			<id>central</id>
 			<name>libs-releases</name>
-			<url>https://dev.biit-solutions.com/artifactory/libs-release</url>
+			<url>https://artifactory.biit-solutions.com/artifactory/libs-release</url>
 		</repository>
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>libs-snapshot</name>
-			<url>https://dev.biit-solutions.com/artifactory/libs-snapshot</url>
+			<url>https://artifactory.biit-solutions.com/artifactory/libs-snapshot</url>
 		</snapshotRepository>
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git.biit-solutions.com:BeanHotDeployer.git</connection>
-		<developerConnection>scm:git:git.biit-solutions.com:BeanHotDeployer.git</developerConnection>
+		<connection>scm:git:git.biit-solutions.com:BiiT/BeanHotDeployer.git</connection>
+		<developerConnection>scm:git:git.biit-solutions.com:BiiT/BeanHotDeployer.git</developerConnection>
 		<tag>bean-hot-deployer</tag>
 	</scm>
 

@@ -2,8 +2,8 @@ package com.biit.bean.loader.logger;
 
 
 import com.biit.logger.BiitLogger;
-import com.sun.org.slf4j.internal.Logger;
-import com.sun.org.slf4j.internal.LoggerFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Defines basic log behavior. Uses log4j.properties.
