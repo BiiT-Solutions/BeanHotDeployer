@@ -12,3 +12,5 @@ tmp
 *.zip
 styles.css
 /target/
+*.iml
+.idea

@@ -18,20 +18,26 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>${org.testng.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- File access and logger -->
 		<dependency>
 			<groupId>com.biit</groupId>
 			<artifactId>common-utils</artifactId>
-			<version>${biit-common-utils.version}</version>
+		</dependency>
+		<!-- log -->
+		<dependency>
+			<groupId>org.slf4j</groupId>
+			<artifactId>slf4j-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>ch.qos.logback</groupId>
+			<artifactId>logback-core</artifactId>
 		</dependency>
 		<!-- Project -->
 		<dependency>
@@ -51,7 +57,7 @@
 					<useFile>false</useFile>
 					<trimStackTrace>false</trimStackTrace>
 					<suiteXmlFiles>
-						<suiteXmlFile>src/test/config/testng.xml</suiteXmlFile>
+						<suiteXmlFile>src/test/resources/testng.xml</suiteXmlFile>
 					</suiteXmlFiles>
 				</configuration>
 			</plugin>

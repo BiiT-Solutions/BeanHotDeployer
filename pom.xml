@@ -7,6 +7,13 @@
 	<version>1.0.5-SNAPSHOT</version>
 	<name>Bean Hot Deployer</name>
 	<description>Bean deployer without restarting the tomcat server.</description>
+
+	<parent>
+		<groupId>com.biit</groupId>
+		<artifactId>versions</artifactId>
+		<version>[0.1,0.2)</version>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
 	
 	<modules>
 		<module>bean-hot-deployer-annotations</module>
@@ -33,42 +40,22 @@
 		<tag>bean-hot-deployer</tag>
 	</scm>
 
-	<properties>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-		<maven-antrun-plugin.version>1.7</maven-antrun-plugin.version>
-		<maven-resources-plugin.version>2.7</maven-resources-plugin.version>
-		<maven-surefire.version>2.17</maven-surefire.version>
-		<exec-maven-plugin.version>1.2.1</exec-maven-plugin.version>
-		<org.testng.version>6.8.7</org.testng.version>
-		<log4j.version>1.2.17</log4j.version>
-		<maven-release-plugin.version>2.5.1</maven-release-plugin.version>
-		<maven-scm-provider-gitexe.version>1.9.2</maven-scm-provider-gitexe.version>
-		<org.springframework.version>4.3.16.RELEASE</org.springframework.version>
-		<!-- BiiT dependencies -->
-		<biit-common-utils.version>[1.0,1.1)</biit-common-utils.version>
-	</properties>
-
 	<dependencies>
 		<!-- Spring -->
-		<!-- https://mvnrepository.com/artifact/org.springframework/spring-context -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
-			<version>${org.springframework.version}</version>
 		</dependency>
 		<!-- Testing -->
 		<dependency>
 			<groupId>org.testng</groupId>
 			<artifactId>testng</artifactId>
-			<version>${org.testng.version}</version>
 			<scope>test</scope>
 		</dependency>
 		<!-- File access and logger -->
 		<dependency>
 			<groupId>com.biit</groupId>
 			<artifactId>common-utils</artifactId>
-			<version>${biit-common-utils.version}</version>
 		</dependency>
 	</dependencies>
 
