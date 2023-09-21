@@ -35,8 +35,8 @@
 	</distributionManagement>
 
 	<scm>
-		<connection>scm:git:git.biit-solutions.com:BiiT/BeanHotDeployer.git</connection>
-		<developerConnection>scm:git:git.biit-solutions.com:BiiT/BeanHotDeployer.git</developerConnection>
+		<connection>scm:git:git.biit-solutions.com:Java/BeanHotDeployer.git</connection>
+		<developerConnection>scm:git:git.biit-solutions.com:Java/BeanHotDeployer.git</developerConnection>
 		<tag>bean-hot-deployer</tag>
 	</scm>
 
