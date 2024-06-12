@@ -38,11 +38,9 @@ public interface IBeanLoader {
 			IllegalArgumentException, InvocationTargetException;
 
 	/**
-	 * Gets all beans that already exists in the application context and match
+	 * Gets all beans that already exist in the application context and match
 	 * the selected filter.
-	 * 
-	 * @param filter
-	 *            filtering which beans are selected.
+	 *
 	 * @return a list of bean classes.
 	 */
 	<T extends java.lang.annotation.Annotation> Collection<Object> getLoadedBeansWithAnnotation(Class<T> beanAnnotation);
