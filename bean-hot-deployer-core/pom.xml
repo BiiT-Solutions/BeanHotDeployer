@@ -8,7 +8,7 @@
 	<parent>
 		<groupId>com.biit</groupId>
 		<artifactId>bean-hot-deployer</artifactId>
-		<version>1.1.57</version>
+		<version>1.1.58-SNAPSHOT</version>
 	</parent>
 	
 
