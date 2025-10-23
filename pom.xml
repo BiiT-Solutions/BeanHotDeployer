@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.biit-solutions</groupId>
     <artifactId>bean-hot-deployer</artifactId>
     <packaging>pom</packaging>
-    <version>1.1.114-SNAPSHOT</version>
+    <version>1.1.114</version>
     <name>Bean Hot Deployer</name>
     <description>Bean deployer without restarting the tomcat server.</description>
 
@@ -13,7 +12,7 @@
         <groupId>com.biit-solutions</groupId>
         <artifactId>versions</artifactId>
         <version>[0.1,0.2)</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
 
@@ -53,7 +52,7 @@
         <connection>scm:git:ssh://git@github.com/BiiT-Solutions/BeanHotDeployer.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/BiiT-Solutions/BeanHotDeployer.git</developerConnection>
         <url>https://github.com/BiiT-Solutions/BeanHotDeployer.git</url>
-        <tag>bean-hot-deployer</tag>
+        <tag>bean-hot-deployer-1.1.114</tag>
     </scm>
 
     <dependencies>
