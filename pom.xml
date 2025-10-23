@@ -1,98 +1,133 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
-	<groupId>com.biit</groupId>
-	<artifactId>bean-hot-deployer</artifactId>
-	<packaging>pom</packaging>
-	<version>1.1.114-SNAPSHOT</version>
-	<name>Bean Hot Deployer</name>
-	<description>Bean deployer without restarting the tomcat server.</description>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>com.biit-solutions</groupId>
+    <artifactId>bean-hot-deployer</artifactId>
+    <packaging>pom</packaging>
+    <version>1.1.114-SNAPSHOT</version>
+    <name>Bean Hot Deployer</name>
+    <description>Bean deployer without restarting the tomcat server.</description>
 
-	<parent>
-		<groupId>com.biit</groupId>
-		<artifactId>versions</artifactId>
-		<version>[0.1,0.2)</version>
-		<relativePath /> <!-- lookup parent from repository -->
-	</parent>
-
-	<modules>
-		<module>bean-hot-deployer-annotations</module>
-		<module>bean-hot-deployer-core</module>
-	</modules>
+    <parent>
+        <groupId>com.biit-solutions</groupId>
+        <artifactId>versions</artifactId>
+        <version>[0.1,0.2)</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
 
 
-	<distributionManagement>
-		<repository>
-			<id>central</id>
-			<name>libs-releases</name>
-			<url>https://artifactory.biit-solutions.com/artifactory/libs-release</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>libs-snapshot</name>
-			<url>https://artifactory.biit-solutions.com/artifactory/libs-snapshot</url>
-		</snapshotRepository>
-	</distributionManagement>
+    <licenses>
+        <license>
+            <name>GNU AGPL v3</name>
+            <url>https://www.gnu.org/licenses/agpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
 
-	<scm>
-		<connection>scm:git:git.biit-solutions.com:Java/BeanHotDeployer.git</connection>
-		<developerConnection>scm:git:git.biit-solutions.com:Java/BeanHotDeployer.git</developerConnection>
-		<tag>bean-hot-deployer</tag>
-	</scm>
+    <organization>
+        <name>BiiT Sourcing Solutions S.L.</name>
+        <url>https://www.biit-solutions.com/</url>
+    </organization>
 
-	<dependencies>
-		<!-- Spring -->
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-context</artifactId>
-		</dependency>
-		<!-- Testing -->
-		<dependency>
-			<groupId>org.testng</groupId>
-			<artifactId>testng</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<!-- File access and logger -->
-		<dependency>
-			<groupId>com.biit</groupId>
-			<artifactId>common-utils</artifactId>
-		</dependency>
-	</dependencies>
+    <modules>
+        <module>bean-hot-deployer-annotations</module>
+        <module>bean-hot-deployer-core</module>
+    </modules>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>${maven-compiler-plugin.version}</version>
-				<configuration>
-					<source>7</source>
-					<target>7</target>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>${maven-resources-plugin.version}</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>${maven-release-plugin.version}</version>
-				<dependencies>
-					<dependency>
-						<groupId>org.apache.maven.scm</groupId>
-						<artifactId>maven-scm-provider-gitexe</artifactId>
-						<version>${maven-scm-provider-gitexe.version}</version>
-					</dependency>
-				</dependencies>
-				<configuration>
-					<checkModificationExcludes>
-						<checkModificationExclude>pom.xml</checkModificationExclude>
-					</checkModificationExcludes>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
+
+    <distributionManagement>
+        <repository>
+            <id>central</id>
+            <name>Maven Central</name>
+            <url>https://repo.maven.apache.org/maven2</url>
+        </repository>
+        <snapshotRepository>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/BiiT-Solutions/BeanHotDeployer</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com/BiiT-Solutions/BeanHotDeployer.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/BiiT-Solutions/BeanHotDeployer.git</developerConnection>
+        <url>https://github.com/BiiT-Solutions/BeanHotDeployer.git</url>
+        <tag>bean-hot-deployer</tag>
+    </scm>
+
+    <dependencies>
+        <!-- Spring -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>${maven-release-plugin.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.scm</groupId>
+                        <artifactId>maven-scm-provider-gitexe</artifactId>
+                        <version>${maven-scm-provider-gitexe.version}</version>
+                    </dependency>
+                </dependencies>
+                <configuration>
+                    <checkModificationExcludes>
+                        <checkModificationExclude>pom.xml</checkModificationExclude>
+                    </checkModificationExcludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${license-maven-plugin.version}</version>
+                <configuration>
+                    <organizationName>BiiT Sourcing Solutions S.L.</organizationName>
+                    <inceptionYear>2022</inceptionYear>
+                    <licenseName>agpl_v3</licenseName>
+                    <excludes>
+                        <exclude>**/*.properties</exclude>
+                        <exclude>**/*.xml</exclude>
+                        <exclude>**/*.json</exclude>
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>first</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>package</phase>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -1,5 +1,26 @@
 package com.biit.bean.loader;
 
+/*-
+ * #%L
+ * Bean Hot Deployer (Core)
+ * %%
+ * Copyright (C) 2022 - 2025 BiiT Sourcing Solutions S.L.
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * #L%
+ */
+
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
@@ -23,8 +44,6 @@ import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
-import javax.annotation.PostConstruct;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
@@ -41,6 +60,8 @@ import com.biit.utils.file.FileReader;
 import com.biit.utils.file.watcher.FileWatcher;
 import com.biit.utils.file.watcher.FileWatcher.FileAddedListener;
 import com.biit.utils.file.watcher.FileWatcher.FileRemovedListener;
+
+import javax.annotation.PostConstruct;
 
 @Component
 public class BeanLoader implements IBeanLoader {

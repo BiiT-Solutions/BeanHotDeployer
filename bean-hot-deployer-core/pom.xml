@@ -6,7 +6,7 @@
 	<name>Bean Hot Deployer (Core)</name>
 	
 	<parent>
-		<groupId>com.biit</groupId>
+		<groupId>com.biit-solutions</groupId>
 		<artifactId>bean-hot-deployer</artifactId>
 		<version>1.1.114-SNAPSHOT</version>
 	</parent>
@@ -29,6 +29,12 @@
 		<dependency>
 			<groupId>com.biit</groupId>
 			<artifactId>common-utils</artifactId>
+			<version>${biit-common-utils.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>${javax.annotation-api.version}</version>
 		</dependency>
 		<!-- log -->
 		<dependency>
