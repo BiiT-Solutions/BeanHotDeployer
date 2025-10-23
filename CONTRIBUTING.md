@@ -1,8 +1,8 @@
 ## Contributing to this project
 
-[fork]: https://github.com/BiiT-Solutions/UserManager/fork
+[fork]: https://github.com/BiiT-Solutions/BeanHotDeployer/fork
 
-[pr]: https://github.com/BiiT-Solutions/UserManager/compare
+[pr]: https://github.com/BiiT-Solutions/BeanHotDeployer/compare
 
 [cc]: https://www.conventionalcommits.org/en/v1.0.0/#summary
 
